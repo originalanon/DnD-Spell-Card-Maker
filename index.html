@@ -17,6 +17,90 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         
+        <!-- TODO: Add radio buttons for range of Touch -->
+        <form id="card-settings" name="card-settings">
+            <label for="name">Spell Name</label>
+            <input type="text" id="name" name="name"><br><br>
+            
+            <!--Spell Level dropdown-->
+            <label for="level">Spell Level</label>
+            <select id="level" name="level">
+                <option value=0>Cantrip</option>
+                <option value=1>1st</option>
+                <option value=2>2nd</option>
+                <option value=3>3rd</option>
+                <option value=4>4th</option>
+                <option value=5>5th</option>
+                <option value=6>6th</option>
+                <option value=7>7th</option>
+                <option value=8>8th</option>
+                <option value=9>9th</option>
+            </select>
+
+            <!--Spell school dropdown-->
+            <!-- TODO: Add a "Custom" option that displays a text input-->
+            <label for="school">School of Magic</label>
+            <select id="school" name="school">
+                <option value="Abjuration">Abjuration</option>
+                <option value="Conjuration">Conjuration</option>
+                <option value="Divination">Divination</option>
+                <option value="Enchantment">Enchantment</option>
+                <option value="Evocation">Evocation</option>
+                <option value="Illusion">Illusion</option>
+                <option value="Necromancy">Necromancy</option>
+                <option value="Transmutation">Transmutation</option>
+            </select>
+
+            <label for="classes">Classes</label>
+            <input type="text" id="classes" name="classes"><br><br>
+            
+            <label for="range">Range</label>
+            <input type="text" id="range" name="range"><br><br>
+            <p>ft</p>
+
+            <fieldset>
+                <legend>Components:</legend>
+                
+                
+                <input type="checkbox" id="verbal" name="verbal" value="V">
+                <label for="verbal">Verbal</label><br>
+
+                <input type="checkbox" id="somatic" name="somatic" value="S">
+                <label for="somatic">Somatic</label><br>
+
+                <input type="checkbox" id="mat-components" name="mat-components" value="C">
+                <label for="somatic">Component</label><br>
+                <!-- TODO: Text box appears when Component is selected-->
+            </fieldset>
+
+
+            <label for="duration">Duration:</label>
+            <input type="text" id="duration" name="duration"><br><br>
+
+            <label for="description">Description:</label>
+            <textarea name="description" rows="10" cols="30"></textarea>
+            
+            <label for="source">Source:</label>
+            <input type="text" id="source" name="source"><br><br>
+
+            <!-- TODO: Create a checkbox to add a link, if wanted-->
+            <div id="link-add-div">
+                <label for="link">Link: </label>
+                <input type="text" id="link" name="link"><br><br>
+            </div>
+            
+        </form>
+
+
         <script src="" async defer></script>
+
+        <script>
+
+            function submitCard(){
+                
+            }
+
+        </script>
+        
     </body>
 </html>

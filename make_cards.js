@@ -54,7 +54,7 @@ for(var i = 0; i < spellsData.cards.length; i++){
     if(settings['description-optimizing'] == true){
 
     }
-
+    //TODO: Add handling for if a spell's range is Touch
     //TODO: Add option to UI for "At Higher Levels" description. Should create a new HTML element in the card-body div
     templateContent = templateContent.replace("${description}", currentCard.description);
     templateContent = templateContent.replace("${source}", currentCard.source);
