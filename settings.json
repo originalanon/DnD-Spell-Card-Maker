@@ -1,1 +1,8 @@
-{}
+{
+    "qr-code":null,
+    "description-optimizing": null,
+    "at-higher-levels": null,
+    "header-color": "#cf3c52",
+    "body-color": "white",
+    "footer-color": "white"
+}
