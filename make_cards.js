@@ -5,13 +5,15 @@ const templatePath = './template.html';
 
 let templateContent = fs.readFileSync(templatePath, 'utf-8');
 
+
+
 function optimizeDescription(description){
     
 
 
 }
 
-for(var i = 0; i < spellsData.cards.length; i++){
+export function createCard(){
     var currentCard = spellsData.cards[i]
 
     //Switch statement to get the correct endings for 1st, 2nd, 3rd, and Cantrip level spells
@@ -69,5 +71,7 @@ for(var i = 0; i < spellsData.cards.length; i++){
         }
     })
 
+    fs.closeSync()
 }
+
 

@@ -58,9 +58,11 @@
             <input type="text" id="range" name="range"><br><br>
             <p>ft</p>
 
+            <input type="checkbox" id="touch" name="touch" value="touch" onclick="lockRange()">
+            <label for="touch">Touch</label><br>
+
             <fieldset>
                 <legend>Components:</legend>
-                
                 
                 <input type="checkbox" id="verbal" name="verbal" value="V">
                 <label for="verbal">Verbal</label><br>
@@ -95,6 +97,18 @@
 
         <script src="" async defer></script>
         <script src="./renderer.js"></script>
+        <script>
+            function lockRange(){
+                const rangeInput = document.getElementById('range');
+                if(rangeInput.disabled == true){
+                    rangeInput.disabled = false;
+                }
+                else{
+                    rangeInput.value = "touch";
+                    rangeInput.disabled = true;
+                }
+            }
+        </script>
         
     </body>
 </html>
