@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -6,6 +7,9 @@ function createWindow() {
         width: 800,
         webPreferences: {
             nodeIntegration: true,
+            sandbox: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
             enableRemoteModule: true
         },
         title: 'My App',

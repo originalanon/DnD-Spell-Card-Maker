@@ -1,106 +1,127 @@
+// ==== 1) Hook up the button ====
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('card-settings');
+  const btn  = document.getElementById('generateCard'); // your "Generate" button
 
-const generateCardButton = document.getElementById('generateCard')
+  if (!form || !btn) return;
 
-class spellCard {
-  constructor(title, level, school, range, components, duration, description, source, link) {
-    this.title = title;
-    this.level = level;
-    this.range = range;
-    this.school = school;
-    this.components = components;
-    this.duration = duration;
-    this.description = description;
-    this.source = source;
-    this.link = link;
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    buildSpellCard(form); // <- fire and forget
+  });
+});
+
+// ==== 2) Main flow: read template -> fill -> write ====
+async function buildSpellCard(form) {
+  try {
+    const data = collectSpellForm(form);
+
+    // await #1: load template.html via preload bridge
+    // (This pauses here until the preload returns the file contents.)
+    const templateContent = await window.fsAPI.getTemplate('template.html');
+
+    const filledHtml = fillTemplateWithFormData(templateContent, data);
+
+    // Safe filename from spell name
+    const safeName = (data.name || 'spell').replace(/[\\/:*?"<>|]/g, '_');
+
+    // await #2: write the file via preload bridge
+    await window.fsAPI.writeFile(`${safeName}.html`, filledHtml);
+
+    console.log('Card saved:', `${safeName}.html`);
+
+    // If you still want to use your SpellCard class, you can do it here:
+    // const card = new SpellCard(data);
+    // card.render();
+  } catch (err) {
+    console.error('Error creating card:', err);
   }
-
-  createCard(){
-    var currentCard = this;
-
-    //Switch statement to get the correct endings for 1st, 2nd, 3rd, and Cantrip level spells
-    var levelText = "";
-
-    switch(currentCard.level){
-        case 0:
-            levelText = "Cantrip"
-            break;
-        case 1:
-            levelText = "1st"
-            break;
-        case 2:
-            levelText = "2nd"
-            break;
-        case 3:
-            levelText = "3rd"
-            break;
-        default:
-            levelText = currentCard.level.toString() + "th"
-            break;
-    }
-    
-    //TODO: Sanitize input on the GUI to make sure school name is capitlized
-    if(currentCard.level == 0){
-        templateContent = templateContent.replace("${level-school}", currentCard.school + " Cantrip");
-    }
-    else{
-        templateContent = templateContent.replace("${level-school}", levelText + " Level " + currentCard.school);
-    }
-    
-    templateContent = templateContent.replace("${title}", currentCard.title);
-    //TODO: Radio select in GUI for components
-    templateContent = templateContent.replace("${components}", currentCard.components);
-    templateContent = templateContent.replace("${duration}", currentCard.duration);
-    //TODO: Add option to UI for description "optimizing"
-    //TODO: Add description "optimizing" function to this file -- basically, to save space, some words and phrases can be shortened ("disadvantage" to "disadv.", "Wisdom Saving Throw" to "WIS ST", etc).
-
-    if(settings['description-optimizing'] == true){
-
-    }
-
-    //TODO: Add handling for if a spell's range is Touch
-    if(currentCard.range = 'touch'){
-      templateContent = templateContent.replace("${range}", "Touch");
-    }
-    else{
-      templateContent = templateContent.replace("${range}", currentCard.range + " ft");
-    }
-    
-    //TODO: Add option to UI for "At Higher Levels" description. Should create a new HTML element in the card-body div
-    templateContent = templateContent.replace("${description}", currentCard.description);
-    templateContent = templateContent.replace("${source}", currentCard.source);
-
-    //TODO: Create setting in UI for generating QR code if there's a link, then create a function to do that and replace "${qr_code}" with an img tag to it
-
-    fs.writeFile('./cards/' + currentCard.title + ".html", templateContent, (err) =>
-    {
-        if(err){
-            console.error("Error writing card to HTML file: ", err);
-            return;
-        }
-    })
-
-    fs.closeSync();
 }
 
+// ==== 3) Turn the form into a data object ====
+function collectSpellForm(form) {
+  const components = [];
+  if (form.verbal?.checked) components.push('V');
+  if (form.somatic?.checked) components.push('S');
+  if (form['mat-components']?.checked) components.push('C');
+
+  const rawRange = (form.range?.value ?? '').trim();
+  const isTouch  = rawRange.toLowerCase() === 'touch';
+
+  const classes = (form.classes?.value ?? '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  return {
+    name: (form.name?.value ?? '').trim(),
+    level: Number(form.level?.value ?? 0),
+    school: (form.school?.value ?? '').trim(),
+    classes,
+    range: isTouch ? 'Touch' : rawRange,
+    castingTime: (form.castingTime?.value ?? '').trim(),
+    components,
+    duration: (form.duration?.value ?? '').trim(),
+    description: (form.description?.value ?? '').trim(),
+    source: (form.source?.value ?? '').trim(),
+    link: ((form.link?.value ?? '').trim() || null),
+  };
 }
 
-generateCardButton.addEventListener('click', () => {
-  alert("Pressed");
+// ==== 4) Fill the template placeholders ====
+function fillTemplateWithFormData(template, d) {
+  // Build computed strings once:
+  const levelSchoolText = d.level === 0
+    ? `${d.school} Cantrip`
+    : `${ordinal(d.level)} Level ${d.school}`;
+  const componentsText = Array.isArray(d.components) ? d.components.join(', ') : (d.components ?? '');
+  let rangeText = '—';
+  if (d.range) {
+    if (d.range.toLowerCase() === 'touch') rangeText = 'Touch';
+    else if (!Number.isNaN(parseFloat(d.range))) rangeText = `${parseFloat(d.range)} ft`;
+    else rangeText = d.range;
+  }
+  const classesText = Array.isArray(d.classes) ? d.classes.join(', ') : (d.classes ?? '');
 
-  var level = document.getElementById('level').value;
-  var title = document.getElementById('name').value;
-  var school = document.getElementById('school').value;
-  var range = document.getElementById('range').value; 
-  var components =  [document.getElementById('verbal').value, document.getElementById('somatic').value, document.getElementById('mat-components').value];
-  var duration = document.getElementById('duration').value;
-  var description = document.getElementById('description').value;
-  var source = document.getElementById('source').value;
-  var link = document.getElementById('link').value;
+  // Map placeholders -> values
+  const values = {
+    '${level-school}': levelSchoolText,
+    '${title}': d.name || '(Unnamed Spell)',
+    '${components}': componentsText || '—',
+    '${duration}': d.duration || '—',
+    '${casting-time}': d.castingTime || '—',
+    '${range}': rangeText,
+    '${description}': d.description || '',
+    '${source}': d.source || '—',
+    // Optional placeholders (only replaced if present):
+    '${classes}': classesText || '—',
+    '${qr_code}': '' // leave blank unless you generate a QR later
+  };
 
-  alert("CREATING CARD");
+  // Replace all occurrences of each placeholder
+  let html = String(template);
+  for (const [key, val] of Object.entries(values)) {
+    html = replaceAll(html, key, val);
+  }
+  return html;
+}
 
-  card = new spellCard(title, level, school, range, components, duration, description, source, link);
-  card.createCard();
+// Replace *all* occurrences (String.replace only does the first by default)
+function replaceAll(str, find, replacement) {
+  // Escape special regex chars in the placeholder:
+  const escaped = find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(new RegExp(escaped, 'g'), replacement);
+}
 
-  alert("CARD CREATED");
-})
+// Proper ordinals (handles 11/12/13)
+function ordinal(n) {
+  if (n === 0) return 'Cantrip';
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1: return `${n}st`;
+    case 2: return `${n}nd`;
+    case 3: return `${n}rd`;
+    default: return `${n}th`;
+  }
+}
